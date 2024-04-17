@@ -11,7 +11,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - name: logIN
+        run: docker login -u ylim -p $DOCKERHUB_PASS
+      
       - name: build build build
         env:
           IMAGE_TAG: ${{ github.sha }}
-        run: docker build -t hello-world:$IMAGE_TAG .
+        run: |
+          docker build -t hello-world:$IMAGE_TAG .
+          docker push ylim/hello-world:$IMAGE_TAG
+        
