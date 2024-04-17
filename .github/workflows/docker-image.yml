@@ -1,5 +1,5 @@
 name: Docker Image CI
-run-name: ${{github_sha}} from ${{github.triggering_action}} by @${{github.actor}}
+run-name: ${{github.sha}} from ${{github.triggering_action}} by @${{github.actor}}
 
 on: [push, pull_request]
 
