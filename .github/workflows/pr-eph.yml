@@ -1,0 +1,114 @@
+name: PR Run E2E Tests
+
+on:
+  pull_request:
+    types: [ labeled ]
+
+jobs:
+  create-e2e-environment:
+    if: ${{ github.event.label.name == 'e2e' }}
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - id: create-environment
+        name: Create and deploy Qovery E2E environment
+        env:
+          QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+        run: |
+          # Download and install Qovery CLI
+          curl -s https://get.qovery.com | bash
+
+          echo "Organization name: ${{ vars.QOVERY_ORGANIZATION_NAME }}"
+          echo "Project name: ${{ vars.QOVERY_PROJECT_NAME }}"
+          echo "Blueprint name: ${{ vars.QOVERY_BLUEPRINT_ENVIRONMENT_NAME }}"
+          
+          new_environment_name="${GITHUB_HEAD_REF}"
+
+          echo "Let's clone '${{ vars.QOVERY_BLUEPRINT_ENVIRONMENT_NAME }}' environment into '$new_environment_name' environment"
+
+          qovery environment clone \
+            --organization "${{ vars.QOVERY_ORGANIZATION_NAME }}" \
+            --project "${{ vars.QOVERY_PROJECT_NAME }}" \
+            --environment "${{ vars.QOVERY_BLUEPRINT_ENVIRONMENT_NAME }}" \
+            --new-environment-name "$new_environment_name"
+
+          qovery container update \
+            --organization "${{ vars.QOVERY_ORGANIZATION_NAME }}" \
+            --project "${{ vars.QOVERY_PROJECT_NAME }}" \
+            --environment "${{ vars.QOVERY_BLUEPRINT_ENVIRONMENT_NAME }}" \
+            --container "${{ vars.QOVERY_APPLICATION_NAME }}" \
+            --tag ${{ github.sha }}
+
+          qovery environment deploy \
+            --organization "${{ vars.QOVERY_ORGANIZATION_NAME }}" \
+            --project "${{ vars.QOVERY_PROJECT_NAME }}" \
+            --environment "$new_environment_name" \
+            -w
+
+          qovery_status_markdown_output=`qovery service list \
+            --organization "${{ vars.QOVERY_ORGANIZATION_NAME }}" \
+            --project "${{ vars.QOVERY_PROJECT_NAME }}" \
+            --environment "$new_environment_name" \
+            --markdown`
+
+          echo "QOVERY_STATUS_MARKDOWN_OUTPUT<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$qovery_status_markdown_output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: PR Comment with URL
+        uses: mshick/add-pr-comment@v2
+        with:
+          message-id: qovery-e2e-environment-status
+          message: |
+            ${{ steps.create-environment.outputs.QOVERY_STATUS_MARKDOWN_OUTPUT }}
+
+  run-e2e-tests:
+    if: ${{ github.event.label.name == 'e2e' }}
+    runs-on: ubuntu-latest
+    needs: create-e2e-environment
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - id: run-e2e
+        name: Run E2E tests
+        env:
+          QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+        run: |
+          # Download and install Qovery CLI
+          curl -s https://get.qovery.com | bash
+          
+          new_environment_name="${GITHUB_HEAD_REF}"
+          
+          api_domain=`qovery container domain list \
+            --organization "${{ vars.QOVERY_ORGANIZATION_NAME }}" \
+            --project "${{ vars.QOVERY_PROJECT_NAME }}" \
+            --environment "$new_environment_name" \
+            --container "${{ vars.QOVERY_APPLICATION_NAME }}" | grep "BUILT_IN_DOMAIN" | head -1 | awk '{print $5}' | sed -e 's/\x1b\[[0-9;]*m//g'`
+          
+          echo "api_domain: $api_domain"
+          
+          api_host="https://$api_domain"
+          echo "API_HOST: $api_host"
+
+          e2e_report=`curl $api_host`
+
+          echo "E2E_REPORT<<EOF" >> $GITHUB_OUTPUT
+          echo "$e2e_report" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Display E2E Report
+        uses: mshick/add-pr-comment@v2
+        with:
+          message-id: e2e-report
+          message: |
+            E2E Tests Report
+
+            --
+
+            ```
+            ${{ steps.run-e2e.outputs.E2E_REPORT }}
+            ```
