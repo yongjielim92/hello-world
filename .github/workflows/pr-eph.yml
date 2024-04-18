@@ -22,6 +22,7 @@ jobs:
           echo "Organization name: ${{ vars.QOVERY_ORGANIZATION_NAME }}"
           echo "Project name: ${{ vars.QOVERY_PROJECT_NAME }}"
           echo "Blueprint name: ${{ vars.QOVERY_BLUEPRINT_ENVIRONMENT_NAME }}"
+          echo "App name: ${{ vars.QOVERY_APPLICATION_NAME }}"
           
           new_environment_name="${GITHUB_HEAD_REF}"
 
