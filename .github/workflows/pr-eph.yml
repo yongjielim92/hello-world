@@ -1,4 +1,5 @@
 name: PR Run E2E Tests
+run-name: E2E ${{github.sha}} from ${{github.triggering_action}} by @${{github.actor}}
 
 on:
   pull_request:
