@@ -39,7 +39,7 @@ jobs:
           qovery container update \
             --organization "${{ vars.QOVERY_ORGANIZATION_NAME }}" \
             --project "${{ vars.QOVERY_PROJECT_NAME }}" \
-            --environment "${{ vars.QOVERY_BLUEPRINT_ENVIRONMENT_NAME }}" \
+            --environment "$new_environment_name" \
             --container "${{ vars.QOVERY_APPLICATION_NAME }}" \
             --tag ${{ github.event.pull_request.head.sha }}
 
