@@ -80,7 +80,7 @@ jobs:
           # Download and install Qovery CLI
           curl -s https://get.qovery.com | bash
           
-          new_environment_name="${GITHUB_HEAD_REF}"
+          new_environment_name="${GITHUB_HEAD_REF}_${{ github.event.pull_request.head.sha }}_${{ github.run_id }}_${{ github.run_number }}_${{ github.run_attempt }}"
           
           api_domain=`qovery container domain list \
             --organization "${{ vars.QOVERY_ORGANIZATION_NAME }}" \
