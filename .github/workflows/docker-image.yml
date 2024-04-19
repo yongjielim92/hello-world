@@ -16,8 +16,13 @@ jobs:
       
       - name: build build build
         env:
-          IMAGE_TAG: ${{ github.sha }}
+          BUILD_IMAGE: ylim/hello-world:${{ github.sha }}
+          CACHE_IMAGE: ylim/hello-world:cache
         run: |
-          docker build -t ylim/hello-world:$IMAGE_TAG .
-          docker push ylim/hello-world:$IMAGE_TAG
+          docker pull $CACHE_IMAGE || echo "No cache image available. Skipping..."
+          docker build --cache-from $CACHE_IMAGE -t $BUILD_IMAGE .
+          docker rmi $CACHE_IMAGE
+          docker tag $BUILD_IMAGE $CACHE_IMAGE
+          docker push --all-tags ylim/hello-world
+
         
