@@ -43,6 +43,14 @@ jobs:
             --container "${{ vars.QOVERY_APPLICATION_NAME }}" \
             --tag ${{ github.event.pull_request.head.sha }}
 
+          qovery container env update \
+            --organization "${{ vars.QOVERY_ORGANIZATION_NAME }}" \
+            --project "${{ vars.QOVERY_PROJECT_NAME }}" \
+            --environment "${{ vars.QOVERY_BLUEPRINT_ENVIRONMENT_NAME }}" \
+            --container "${{ vars.QOVERY_APPLICATION_NAME }}" \
+            --key COMMIT_SHA \
+            --value "${{ github.event.pull_request.head.sha }}"
+
           qovery environment deploy \
             --organization "${{ vars.QOVERY_ORGANIZATION_NAME }}" \
             --project "${{ vars.QOVERY_PROJECT_NAME }}" \
