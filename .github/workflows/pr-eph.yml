@@ -1,5 +1,5 @@
 name: PR Run E2E Tests
-run-name: E2E ${{github.workflow_sha}} by @${{github.actor}}
+run-name: E2E ${{github.event.pull_request.head.sha}} by @${{github.actor}}
 
 on:
   pull_request:
@@ -25,7 +25,7 @@ jobs:
           echo "Blueprint name: ${{ vars.QOVERY_BLUEPRINT_ENVIRONMENT_NAME }}"
           echo "App name: ${{ vars.QOVERY_APPLICATION_NAME }}"
           
-          new_environment_name="${GITHUB_HEAD_REF}_${{ github.workflow_sha }}_${{ github.run_id }}_${{ github.run_number }}_${{ github.run_attempt }}"
+          new_environment_name="${GITHUB_HEAD_REF}_${{ github.event.pull_request.head.sha }}_${{ github.run_id }}_${{ github.run_number }}_${{ github.run_attempt }}"
 
           echo "Let's clone '${{ vars.QOVERY_BLUEPRINT_ENVIRONMENT_NAME }}' environment into '$new_environment_name' environment"
 
@@ -41,7 +41,7 @@ jobs:
             --project "${{ vars.QOVERY_PROJECT_NAME }}" \
             --environment "${{ vars.QOVERY_BLUEPRINT_ENVIRONMENT_NAME }}" \
             --container "${{ vars.QOVERY_APPLICATION_NAME }}" \
-            --tag ${{ github.workflow_sha }}
+            --tag ${{ github.event.pull_request.head.sha }}
 
           qovery environment deploy \
             --organization "${{ vars.QOVERY_ORGANIZATION_NAME }}" \
