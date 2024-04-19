@@ -25,7 +25,7 @@ jobs:
           echo "Blueprint name: ${{ vars.QOVERY_BLUEPRINT_ENVIRONMENT_NAME }}"
           echo "App name: ${{ vars.QOVERY_APPLICATION_NAME }}"
           
-          new_environment_name="${GITHUB_HEAD_REF}_${{ github.event.pull_request.head.sha }}_${{ github.run_id }}_${{ github.run_number }}_${{ github.run_attempt }}"
+          new_environment_name="${GITHUB_HEAD_REF}_${{ github.event.pull_request.head.sha }}_${{ github.run_number }}"
 
           echo "Let's clone '${{ vars.QOVERY_BLUEPRINT_ENVIRONMENT_NAME }}' environment into '$new_environment_name' environment"
 
@@ -82,7 +82,7 @@ jobs:
           # Download and install Qovery CLI
           curl -s https://get.qovery.com | bash
           
-          new_environment_name="${GITHUB_HEAD_REF}_${{ github.event.pull_request.head.sha }}_${{ github.run_id }}_${{ github.run_number }}_${{ github.run_attempt }}"
+          new_environment_name="${GITHUB_HEAD_REF}_${{ github.event.pull_request.head.sha }}_${{ github.run_number }}"
           
           api_domain=`qovery container domain list \
             --organization "${{ vars.QOVERY_ORGANIZATION_NAME }}" \
