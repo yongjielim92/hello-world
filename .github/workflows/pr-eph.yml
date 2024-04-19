@@ -70,12 +70,8 @@ jobs:
     if: ${{ github.event.label.name == 'e2e' }}
     runs-on: ubuntu-latest
     needs: create-e2e-environment
-    permissions:
-      pull-requests: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
+      - uses: actions/checkout@v3
       - id: run-e2e
         name: Run E2E tests
         env:
