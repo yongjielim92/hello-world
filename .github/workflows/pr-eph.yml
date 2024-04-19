@@ -24,7 +24,7 @@ jobs:
           echo "Blueprint name: ${{ vars.QOVERY_BLUEPRINT_ENVIRONMENT_NAME }}"
           echo "App name: ${{ vars.QOVERY_APPLICATION_NAME }}"
           
-          new_environment_name="${GITHUB_HEAD_REF}_${{ github.job	}}"
+          new_environment_name="${GITHUB_HEAD_REF}_${{ github.sha }}_${{ github.run_id }}_${{ github.run_number }}_${{ github.run_attempt }}"
 
           echo "Let's clone '${{ vars.QOVERY_BLUEPRINT_ENVIRONMENT_NAME }}' environment into '$new_environment_name' environment"
 
