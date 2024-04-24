@@ -19,7 +19,7 @@ jobs:
           echo "Organization name: ${{ vars.QOVERY_ORGANIZATION_NAME }}"
           echo "Project name: ${{ vars.QOVERY_PROJECT_NAME }}"
 
-          new_environment_name="${GITHUB_HEAD_REF}_${{ github.event.pull_request.head.sha }}_${{ github.run_number }}"
+          new_environment_name="${GITHUB_HEAD_REF}_${{ github.event.pull_request.head.sha }}"
 
           echo "Let's delete '$new_environment_name' environment and release its resources"
 
