@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-class DerpController < ActionController::Base
+class DerpController < ApplicationController
   def index
-    puts 'HELLO WORLD??'
+    Rails.logger.debug 'HELLO WORLD??'
   end
 end
