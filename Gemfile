@@ -27,6 +27,7 @@ gem "stimulus-rails"
 gem "jbuilder"
 
 gem "rubocop"
+gem "rspec"
 
 gem "rubocop-rails"
 
