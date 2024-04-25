@@ -25,6 +25,8 @@ jobs:
 
   nap:
     runs-on: ubuntu-latest
+    outputs:
+      example: derp
     steps:
       - name: sleep 300
         run: sleep 300
@@ -55,7 +57,7 @@ jobs:
 
   rspec2:
     runs-on: ubuntu-latest
-    needs: build
+    needs: rspec
     steps:
       - name: logIN
         run: docker login -u ylim -p ${{ secrets.DOCKERHUB_PASS }}
@@ -66,7 +68,7 @@ jobs:
         run: docker run $BUILD_IMAGE bundle exec rspec
   rspec3:
     runs-on: ubuntu-latest
-    needs: build
+    needs: rspec
     steps:
       - name: logIN
         run: docker login -u ylim -p ${{ secrets.DOCKERHUB_PASS }}
@@ -79,12 +81,20 @@ jobs:
   message:
     runs-on: ubuntu-latest
     needs: [rspec2, rspec3, nap, rubocop]
+
+    # outputs:
+    #   output1: ${{ steps.step1.outputs.test }}
+    #   output2: ${{ steps.step2.outputs.test }}
     steps:
+      - name: generate output
+        run: echo "thing=initial" >> "$GITHUB_OUTPUT"
+      - name: regenerate output 
+        run: echo "thing=agane" >> "$GITHUB_OUTPUT"
       - name: issue messages
         run: |
           echo "::notice file=Dockerfile,line=3,col=1,endColumn=20::This is a notice for Dockerfile line 3, col 1-20!"
-          echo '::warning file=Gemfile:: This is an example warning with the Gemfile!'
-          echo '::error file:: This is an error with the list of job names ${{ jobs.*.name }}!'
+          echo '::warning file=Gemfile:: This is an example warning with the .example output of the sleep job: ${{ needs.nap.outputs.example }} !'
+          echo '::error file:: This is an error with the list of job names ${{ steps.*.outputs }}!'
         
 
 
