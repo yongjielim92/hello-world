@@ -62,3 +62,5 @@ EXPOSE 3000
 CMD ["./bin/rails", "server"]
 
 
+
+
