@@ -28,8 +28,8 @@ jobs:
     outputs:
       example: derp
     steps:
-      - name: sleep 300
-        run: sleep 300
+      - name: sleepytime
+        run: sleep 150
 
   rubocop:
     runs-on: ubuntu-latest
@@ -94,7 +94,7 @@ jobs:
         run: |
           echo "::notice file=Dockerfile,line=3,col=1,endColumn=20::This is a notice for Dockerfile line 3, col 1-20!"
           echo '::warning file=Gemfile:: This is an example warning with the .example output of the sleep job: ${{ needs.nap.outputs.example }} !'
-          echo '::error file:: This is an error with the list of job names ${{ steps.*.outputs }}!'
+          echo '::error file:: This is an error with the list of step outputs: ${{ steps.*.outputs.* }} OR ${{ steps.*.outputs.thing }}!'
         
 
 
