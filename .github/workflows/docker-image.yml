@@ -6,9 +6,7 @@ on: [push]
 jobs:
 
   build:
-
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
       - name: logIN
@@ -25,6 +23,12 @@ jobs:
           docker tag $BUILD_IMAGE $CACHE_IMAGE
           docker push --all-tags ylim/hello-world
 
+  nap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: sleep 300
+        run: sleep 300
+
   rubocop:
     runs-on: ubuntu-latest
     needs: build
@@ -37,7 +41,7 @@ jobs:
           BUILD_IMAGE: ylim/hello-world:${{ github.sha }}
         run: docker run $BUILD_IMAGE bundle exec rubocop app
 
-  test:
+  rspec:
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -48,6 +52,40 @@ jobs:
         env:
           BUILD_IMAGE: ylim/hello-world:${{ github.sha }}
         run: docker run $BUILD_IMAGE bundle exec rspec
+
+  rspec2:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: logIN
+        run: docker login -u ylim -p ${{ secrets.DOCKERHUB_PASS }}
+      
+      - name: test test test
+        env:
+          BUILD_IMAGE: ylim/hello-world:${{ github.sha }}
+        run: docker run $BUILD_IMAGE bundle exec rspec
+  rspec3:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: logIN
+        run: docker login -u ylim -p ${{ secrets.DOCKERHUB_PASS }}
+      
+      - name: test test test
+        env:
+          BUILD_IMAGE: ylim/hello-world:${{ github.sha }}
+        run: docker run $BUILD_IMAGE bundle exec rspec
+
+  message:
+    runs-on: ubuntu-latest
+    needs: [rspec2, rspec3, nap, rubocop]
+    steps:
+      - name: issue messages
+        run: |
+          echo "::notice file=Dockerfile,line=3,col=1,endColumn=20::This is a notice for Dockerfile line 3, col 1-20!"
+          echo '::warning file=Gemfile:: This is an example warning with the Gemfile!'
+          echo '::error file:: This is an error with the list of job names ${{ jobs.*.name }}!'
+        
 
 
         
