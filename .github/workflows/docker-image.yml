@@ -96,6 +96,35 @@ jobs:
           echo '::warning file=Gemfile:: This is an example warning with the .example output of the sleep job: ${{ needs.nap.outputs.example }} !'
           echo '::error file:: This is an error with the list of step outputs: ${{ steps.*.outputs.* }} OR ${{ steps.*.outputs.thing }}!'
         
+  update_qovery:
+    needs: [build, rspec, rubocop]
+    runs-on: ubuntu-latest
+    if: github.ref_name	== 'main'
+    steps:
+      - id: update-blueprint-environment
+        name: Update the Qovery blueprint environment
+        env:
+          QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+        run: |
+          # Download and install Qovery CLI
+          curl -s https://get.qovery.com | bash
 
+          echo "Organization name: ${{ vars.QOVERY_ORGANIZATION_NAME }}"
+          echo "Project name: ${{ vars.QOVERY_PROJECT_NAME }}"
+          echo "Blueprint name: ${{ vars.QOVERY_BLUEPRINT_ENVIRONMENT_NAME }}"
+          echo "App name: ${{ vars.QOVERY_APPLICATION_NAME }}"
+
+          qovery container update \
+            --organization "${{ vars.QOVERY_ORGANIZATION_NAME }}" \
+            --project "${{ vars.QOVERY_PROJECT_NAME }}" \
+            --environment "${{ vars.QOVERY_BLUEPRINT_ENVIRONMENT_NAME }}" \
+            --container "${{ vars.QOVERY_APPLICATION_NAME }}" \
+            --tag ${{ github.sha }}
+
+          qovery environment deploy \
+            --organization "${{ vars.QOVERY_ORGANIZATION_NAME }}" \
+            --project "${{ vars.QOVERY_PROJECT_NAME }}" \
+            --environment "${{ vars.QOVERY_BLUEPRINT_ENVIRONMENT_NAME }}" \
+            -w
 
         
